@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,15 +25,15 @@ public class Coord
         worldPosition = WorldPosition();
     }
 
-
+    // 计算并返回该坐标在世界中的位置
     public Vector3 WorldPosition()
     {
         
-        //Debug.Log(new Vector3((float)q * Mathf.Sqrt(3) / 2, 0, -(float)r - ((float)q / 2) * 2) * Grid.cellSize);
-        return new Vector3((float)q * Mathf.Sqrt(3) / 2, 0, -(float)r - ((float)q / 2) )* 2 * Grid.cellSize; 
+        
+        return new Vector3(q * Mathf.Sqrt(3) / 2, 0, -(float)r - ((float)q / 2) )* 2 * Grid.cellSize; 
     }
     
-
+    // 定义六个方向的坐标偏移量
     static public Coord[] directions = new Coord[]
     {
         new Coord(0,1,-1),
@@ -49,7 +48,8 @@ public class Coord
     {
         return Coord.directions[direction];
     }
-
+    
+    // 
     public Coord Add(Coord coord)
     {
         return new Coord(q + coord.q, r + coord.r, s + coord.s);
@@ -60,12 +60,13 @@ public class Coord
         return new Coord(q * k, r * k, s * k);
     }
     
-    
+    //返回当前坐标在指定方向上的邻居坐标
     public Coord Neighbor(int direction)
     {
         return Add(Direction(direction));
     }
-
+    
+    //生成一个半径为radius的环形坐标列表
     public static List<Coord> Coord_Ring(int radius)
     {
         List<Coord> result = new List<Coord>();
@@ -87,7 +88,7 @@ public class Coord
         }
         return result;
     }
-
+    //生成一个半径为radius的六边形坐标列表
     public static List<Coord> Coord_Hex(int radius)
     {
         List<Coord> result = new List<Coord>();
@@ -105,7 +106,7 @@ public class Coord
 public class Vertex_hex : Vertex
 {
     public readonly Coord coord;
-
+    
     public Vertex_hex(Coord coord)
     {
         this.coord = coord;
@@ -118,6 +119,17 @@ public class Vertex_hex : Vertex
             vertices.Add(new Vertex_hex(coord));
         }
     }
+    
+    
+    public static List<Vertex_hex> GrabRing(int radius, List<Vertex_hex> vertices)
+    {
+        if (radius == 0)
+        {
+            return vertices.GetRange(0, 1);
+        }
+        return vertices.GetRange(radius * (radius - 1) * 3 + 1, radius * 6);
+    }
+    
 }
 }
 

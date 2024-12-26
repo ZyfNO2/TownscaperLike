@@ -17,8 +17,7 @@ namespace GridGenerator
         private void Awake()
         {
             grid = new Grid(radius,cellSize);
-            Debug.Log(grid.hexes.Count);
-            
+            //Debug.Log(grid.hexes.Count);
         }
 
         private void OnDrawGizmos()
@@ -27,8 +26,15 @@ namespace GridGenerator
             {
                 foreach (Vertex_hex vertex in grid.hexes)
                 {
-                    // 绘制一个半径为0.3f的球体在每个顶点的位置
-                    Gizmos.DrawSphere(vertex.coord.worldPosition, 0.3f);
+                    Gizmos.DrawSphere(vertex.coord.worldPosition, 0.1f);
+                }
+                Gizmos.color = Color.yellow;
+                foreach (Triangle triangle in grid.triangles)
+                {
+                    Gizmos.DrawLine(triangle.a.coord.worldPosition, triangle.b.coord.worldPosition);
+                    Gizmos.DrawLine(triangle.b.coord.worldPosition, triangle.c.coord.worldPosition);
+                    Gizmos.DrawLine(triangle.c.coord.worldPosition, triangle.a.coord.worldPosition);
+                    Gizmos.DrawSphere((triangle.a.coord.worldPosition + triangle.b.coord.worldPosition + triangle.c.coord.worldPosition) / 3, 0.05f);
                 }
             }
         }
