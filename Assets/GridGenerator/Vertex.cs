@@ -127,6 +127,7 @@ public class Vertex_hex : Vertex
         {
             return vertices.GetRange(0, 1);
         }
+        //GetRange 返回一个从指定索引开始，并具有指定长度的指定类型子数组。 起始点为那一圈的第一个顶点
         return vertices.GetRange(radius * (radius - 1) * 3 + 1, radius * 6);
     }
     
