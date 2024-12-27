@@ -20,9 +20,10 @@ namespace GridGenerator
         public readonly Edge ac;
         
         public readonly Edge[] edges;
-        
 
-        public Triangle(Vertex_hex a, Vertex_hex b, Vertex_hex c,List<Edge> edges, List<Triangle> triangles)
+        public readonly Vertex_triangleCenter center;
+        
+        public Triangle(Vertex_hex a, Vertex_hex b, Vertex_hex c,List<Vertex_mid> mids,List<Vertex_center> centers,List<Edge> edges, List<Triangle> triangles)
         {
             this.a = a;
             this.b = b;
@@ -36,19 +37,21 @@ namespace GridGenerator
 
             if (ab == null)
             {
-                ab = new Edge(a, b, edges);
+                ab = new Edge(a, b,mids, edges);
             }
             if (bc == null)
             {
-                bc = new Edge(b, c, edges);
+                bc = new Edge(b, c,mids, edges);
             }
             if (ac == null)
             {
-                ac = new Edge(a, c, edges);
+                ac = new Edge(a, c,mids, edges);
             }
 
+            center = new Vertex_triangleCenter(this);
             this.edges = new Edge[] { ab, bc, ac };
             triangles.Add(this);
+            centers.Add(center);
             
             
         }
@@ -59,7 +62,7 @@ namespace GridGenerator
         /// <param name="radius"></param>
         /// <param name="vertices"></param>
         /// <param name="triangles"></param>
-        public static void Triangles_Ring(int radius, List<Vertex_hex> vertices,List<Edge> edges, List<Triangle> triangles)
+        public static void Triangles_Ring(int radius, List<Vertex_hex> vertices,List<Vertex_mid> mids,List<Vertex_center> centers,List<Edge> edges, List<Triangle> triangles)
         {
             // 获取内圈的顶点列表
             List<Vertex_hex> inner = Vertex_hex.GrabRing(radius - 1, vertices);
@@ -78,25 +81,25 @@ namespace GridGenerator
                     Vertex_hex b = outer[(i * radius + j + 1) % outer.Count];
                     Vertex_hex c = inner[(i * (radius - 1) + j) % inner.Count];
                     // 将新创建的三角形添加到三角形列表中
-                    new Triangle(a, b, c, edges,triangles);
+                    new Triangle(a, b, c, mids,centers,edges,triangles);
 
                     // 创建一个顶点在外圈，两个顶点在内圈的三角形
                     if (j > 0)
                     {
                         Vertex_hex d = inner[i * (radius - 1) + j - 1];
                         // 将新创建的三角形添加到三角形列表中
-                        new Triangle(a, c, d,edges, triangles);
+                        new Triangle(a, c, d,mids,centers,edges, triangles);
                     }
                 }
             }
         }
         
-        public static void Triangles_Hex(List<Vertex_hex> vertices, List<Edge> edges,List<Triangle> triangles)
+        public static void Triangles_Hex(List<Vertex_hex> vertices, List<Vertex_mid> mids,List<Vertex_center> centers,List<Edge> edges,List<Triangle> triangles)
         {
             //i = 0 就没有顶点
             for (int i = 1; i <= Grid.radius; i++)
             {
-                Triangles_Ring(i, vertices,edges ,triangles);
+                Triangles_Ring(i, vertices,mids,centers,edges ,triangles);
             }
         }
         
@@ -143,16 +146,19 @@ namespace GridGenerator
             return exception.Single();
         }
         
-        public void MergeNeighborTriangles(Triangle neighbor, List<Edge> edges, List<Triangle> triangles, List<Quad> quads)
+        public void MergeNeighborTriangles(Triangle neighbor, List<Vertex_mid> mids,List<Vertex_center> centers,List<Edge> edges, List<Triangle> triangles, List<Quad> quads)
         {
             Vertex_hex a = IsolatedVertex_Self(neighbor);
             Vertex_hex b = vertices[(Array.IndexOf(vertices, a) + 1) % 3];
             Vertex_hex c = IsolatedVertex_Neighbor(neighbor);
             Vertex_hex d = neighbor.vertices[(Array.IndexOf(neighbor.vertices, c) + 1) % 3];
 
-            Quad quad = new Quad(a, b, c, d, edges, quads);
-            quads.Add(quad);
+            Quad quad = new Quad(a, b, c, d, centers,edges, quads);
+            //quads.Add(quad);
             edges.Remove(NeighborEdge(neighbor));
+            mids.Remove(NeighborEdge(neighbor).mid);
+            centers.Remove(center); 
+            centers.Remove(neighbor.center);
             triangles.Remove(this);
             triangles.Remove(neighbor);
         }
@@ -174,15 +180,28 @@ namespace GridGenerator
         
         
         
-        public static void RandomlyMergeTriangles(List<Edge> edges, List<Triangle> triangles, List<Quad> quads)
+        public static void RandomlyMergeTriangles(List<Vertex_mid> mids,List<Vertex_center>centers,List<Edge> edges ,List<Triangle> triangles, List<Quad> quads)
         {
             int randomIndex = UnityEngine.Random.Range(0, triangles.Count);
             List<Triangle> neighbors = triangles[randomIndex].FindAllNeighborTriangles(triangles);
             if (neighbors.Count != 0)
             {
                 int randomNeighborIndex = UnityEngine.Random.Range(0, neighbors.Count);
-                triangles[randomIndex].MergeNeighborTriangles(neighbors[randomNeighborIndex], edges, triangles, quads);
+                triangles[randomIndex].MergeNeighborTriangles(neighbors[randomNeighborIndex],mids,centers, edges, triangles, quads);
             }
+        }
+        
+        public void Subdivide(List<SubQuad> subQuads)
+        {
+            // 假设 a, b, c 是 Quad 的三个顶点，center 是中心点
+            // ab, bc, ac 是边的中点
+            SubQuad quad_a = new SubQuad(a, ab.mid, center, ac.mid);
+            SubQuad quad_b = new SubQuad(b, bc.mid, center, ab.mid);
+            SubQuad quad_c = new SubQuad(c, ac.mid, center, bc.mid);
+
+            subQuads.Add(quad_a);
+            subQuads.Add(quad_b);
+            subQuads.Add(quad_c);
         }
         
     }

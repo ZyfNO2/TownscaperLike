@@ -44,6 +44,26 @@ namespace GridGenerator
                     Gizmos.DrawLine(quad.c.coord.worldPosition, quad.d.coord.worldPosition);
                     Gizmos.DrawLine(quad.d.coord.worldPosition, quad.a.coord.worldPosition);
                 }
+                
+                Gizmos.color = Color.red;
+                foreach (Vertex_mid mid in grid.mids)
+                {
+                    Gizmos.DrawSphere(mid.initialPosition, 0.2f);
+                }
+
+                Gizmos.color = Color.cyan; 
+                foreach (Vertex_center center in grid.centers)
+                {
+                    Gizmos.DrawSphere(center.initialPosition, 0.2f);
+                }
+                Gizmos.color = Color.white;
+                foreach (SubQuad subQuad in grid.subQuads)
+                {
+                    Gizmos.DrawLine(subQuad.a.initialPosition, subQuad.b.initialPosition);
+                    Gizmos.DrawLine(subQuad.b.initialPosition, subQuad.c.initialPosition);
+                    Gizmos.DrawLine(subQuad.c.initialPosition, subQuad.d.initialPosition);
+                    Gizmos.DrawLine(subQuad.d.initialPosition, subQuad.a.initialPosition);
+                }
             }
         }
     }

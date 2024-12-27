@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GridGenerator
 {
     public class Vertex
     {
-        
+        public Vector3 initialPosition;
     }
 
 
@@ -23,6 +24,7 @@ public class Coord
         this.r = r;
         this.s = s;
         worldPosition = WorldPosition();
+        
     }
 
     // 计算并返回该坐标在世界中的位置
@@ -108,8 +110,9 @@ public class Vertex_hex : Vertex
     public readonly Coord coord;
     
     public Vertex_hex(Coord coord)
-    {
+    {   
         this.coord = coord;
+        initialPosition = coord.worldPosition;
     }
 
     public static void Hex(List<Vertex_hex> vertices, int radius)
@@ -132,6 +135,56 @@ public class Vertex_hex : Vertex
     }
     
 }
+public class Vertex_mid : Vertex
+{
+    // 构造函数，用于初始化边的中点
+    public Vertex_mid(Edge edge, List<Vertex_mid> mids)
+    {
+        // 获取边的两个端点
+        Vertex_hex a = edge.hexes.ToArray()[0];
+        Vertex_hex b = edge.hexes.ToArray()[1];
+
+        // 将当前中点对象添加到中点列表中
+        mids.Add(this);
+
+        // 计算中点的初始位置，即两个端点位置的平均值
+        initialPosition = (a.initialPosition + b.initialPosition) / 2;
+    }
+}
+
+// 基类 Vertex_center 继承自 Vertex，用于表示中心点
+public class Vertex_center : Vertex
+{
+    
+}
+
+// Vertex_triangleCenter 类继承自 Vertex_center，用于表示三角形的中心点
+public class Vertex_triangleCenter : Vertex_center
+{
+    public Vertex_triangleCenter(Triangle triangle)
+    {
+        // 计算三角形三个顶点初始位置的平均值，作为三角形中心点的初始位置
+        initialPosition = (triangle.a.initialPosition + triangle.b.initialPosition + triangle.c.initialPosition) / 3;
+    }
+}
+
+// Vertex_quadCenter 类继承自 Vertex_center，用于表示四边形的中心点
+public class Vertex_quadCenter : Vertex_center
+{
+    public Vertex_quadCenter(Quad quad)
+    {
+        // 计算四边形四个顶点初始位置的平均值，作为四边形中心点的初始位置
+        // 注意：这里应该是 quad.d.initialPosition 而不是 quad.c.initialPosition 重复
+        initialPosition = (quad.a.initialPosition + quad.b.initialPosition + quad.c.initialPosition + quad.d.initialPosition) / 4;
+    }
+}
+
+
+
+
+
+
+
 }
 
 
