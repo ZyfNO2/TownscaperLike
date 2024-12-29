@@ -7,6 +7,13 @@ namespace GridGenerator
     public class Vertex
     {
         public Vector3 initialPosition;
+        public Vector3 currentPosition;
+        public Vector3 offset = Vector3.zero;
+
+        public void Relax()
+        {
+            currentPosition = initialPosition + offset;
+        }
     }
 
 
@@ -113,6 +120,7 @@ public class Vertex_hex : Vertex
     {   
         this.coord = coord;
         initialPosition = coord.worldPosition;
+        currentPosition = initialPosition;
     }
 
     public static void Hex(List<Vertex_hex> vertices, int radius)
@@ -120,6 +128,7 @@ public class Vertex_hex : Vertex
         foreach (Coord coord in Coord.Coord_Hex(radius))
         {
             vertices.Add(new Vertex_hex(coord));
+            
         }
     }
     
@@ -149,6 +158,7 @@ public class Vertex_mid : Vertex
 
         // 计算中点的初始位置，即两个端点位置的平均值
         initialPosition = (a.initialPosition + b.initialPosition) / 2;
+        currentPosition = initialPosition;
     }
 }
 
@@ -165,6 +175,7 @@ public class Vertex_triangleCenter : Vertex_center
     {
         // 计算三角形三个顶点初始位置的平均值，作为三角形中心点的初始位置
         initialPosition = (triangle.a.initialPosition + triangle.b.initialPosition + triangle.c.initialPosition) / 3;
+        currentPosition = initialPosition;
     }
 }
 
@@ -176,6 +187,7 @@ public class Vertex_quadCenter : Vertex_center
         // 计算四边形四个顶点初始位置的平均值，作为四边形中心点的初始位置
         // 注意：这里应该是 quad.d.initialPosition 而不是 quad.c.initialPosition 重复
         initialPosition = (quad.a.initialPosition + quad.b.initialPosition + quad.c.initialPosition + quad.d.initialPosition) / 4;
+        currentPosition = initialPosition;
     }
 }
 

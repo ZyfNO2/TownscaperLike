@@ -195,13 +195,11 @@ namespace GridGenerator
         {
             // 假设 a, b, c 是 Quad 的三个顶点，center 是中心点
             // ab, bc, ac 是边的中点
-            SubQuad quad_a = new SubQuad(a, ab.mid, center, ac.mid);
-            SubQuad quad_b = new SubQuad(b, bc.mid, center, ab.mid);
-            SubQuad quad_c = new SubQuad(c, ac.mid, center, bc.mid);
+            SubQuad quad_a = new SubQuad(a, ab.mid, center, ac.mid,subQuads);
+            SubQuad quad_b = new SubQuad(b, bc.mid, center, ab.mid,subQuads);
+            SubQuad quad_c = new SubQuad(c, ac.mid, center, bc.mid,subQuads);
 
-            subQuads.Add(quad_a);
-            subQuads.Add(quad_b);
-            subQuads.Add(quad_c);
+            
         }
         
     }
